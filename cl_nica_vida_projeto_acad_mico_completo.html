@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Vida+ - Projeto Acadêmico Integrador</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        health: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* CSS customizado para impressão e scrollbars */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; font-size: 12pt; }
+            .page-break { page-break-before: always; }
+            .shadow-xl, .shadow-md, .shadow-lg { box-shadow: none !important; }
+            .border { border-color: #cbd5e1 !important; }
+        }
+        
+        .print-only { display: none; }
+
+        /* Estilo do Terminal */
+        .terminal-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Animação suave de abas */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- CABEÇALHO DA APLICAÇÃO -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- LOGO E TÍTULO -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-400 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        <i class="fa-solid font-bold fa-heart-pulse"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                            Clínica Vida<span class="text-teal-400">+</span>
+                            <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Projeto Acadêmico</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 hidden sm:block">Análise, Algoritmos e Modelagem de Sistemas de Saúde</p>
+                    </div>
+                </div>
+
+                <!-- BOTÕES DE AÇÃO RÁPIDA -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="window.print()" class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden md:inline">Imprimir Projeto</span>
+                    </button>
+                    <button onclick="exportarRelatorioCompleto()" class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-brand-700 hover:bg-brand-600 text-white rounded-lg shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span class="hidden md:inline">Exportar Relatório</span>
+                    </button>
+                    <button onclick="baixarScriptPython()" class="px-3 py-1.5 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-sm transition flex items-center gap-2">
+                        <i class="fa-brands fa-python"></i>
+                        <span>Baixar .py</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE NAVEGAÇÃO / ABAS DO PASSO A PASSO -->
+        <nav class="bg-slate-950 border-t border-slate-800 overflow-x-auto">
+            <div class="max-w-7xl mx-auto px-4 flex space-x-1 sm:space-x-2 text-xs sm:text-sm font-medium py-2">
+                <button onclick="switchTab('capa')" id="tab-capa" class="tab-btn px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap active">
+                    <i class="fa-solid fa-graduation-cap"></i> Visão Geral & Capa
+                </button>
+                <button onclick="switchTab('passo1')" id="tab-passo1" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-brand-400 text-xs flex items-center justify-center font-bold">1</span>
+                    Gestão Kanban
+                </button>
+                <button onclick="switchTab('passo2')" id="tab-passo2" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-emerald-400 text-xs flex items-center justify-center font-bold">2</span>
+                    Python & Terminal
+                </button>
+                <button onclick="switchTab('passo3')" id="tab-passo3" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-purple-400 text-xs flex items-center justify-center font-bold">3</span>
+                    Lógica Proposicional
+                </button>
+                <button onclick="switchTab('passo4')" id="tab-passo4" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-amber-400 text-xs flex items-center justify-center font-bold">4</span>
+                    Fila FIFO
+                </button>
+                <button onclick="switchTab('passo5')" id="tab-passo5" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <span class="w-5 h-5 rounded-full bg-slate-800 text-rose-400 text-xs flex items-center justify-center font-bold">5</span>
+                    Diagrama UML
+                </button>
+                <button onclick="switchTab('conclusao')" id="tab-conclusao" class="tab-btn px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-book-bookmark"></i> Conclusão & Ref.
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (ABAS) -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- ================================================================= -->
+        <!-- SEÇÃO CAPA & VISÃO GERAL -->
+        <!-- ================================================================= -->
+        <section id="content-capa" class="tab-content active space-y-8">
+            <!-- Capa Acadêmica Estilizada -->
+            <div class="bg-white rounded-2xl p-8 sm:p-12 shadow-sm border border-slate-200 text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-brand-50 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-48 h-48 bg-teal-50 rounded-full blur-2xl pointer-events-none"></div>
+
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs font-semibold uppercase tracking-wider mb-6 border border-brand-100">
+                    <i class="fa-solid fa-graduation-cap"></i> Trabalho Acadêmico Integrador
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+                    PROJETO ACADÊMICO: CLÍNICA VIDA+
+                </h1>
+                <p class="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+                    Desenvolvimento e Modelagem de um Sistema Computacional de Gestão Hospitalar, Integrando Metodologias Ágeis, Algoritmos de Filas, Validação Proposicional e Engenharia de Software.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto text-left bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+                    <div>
+                        <span class="block text-xs uppercase font-semibold text-slate-400">Instituição / Curso</span>
+                        <span class="text-sm font-semibold text-slate-800">Análise e Desenvolvimento de Sistemas</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs uppercase font-semibold text-slate-400">Disciplina</span>
+                        <span class="text-sm font-semibold text-slate-800">Projeto Integrador & Estruturas de Dados</span>
+                    </div>
+                    <div>
+                        <span class="block text-xs uppercase font-semibold text-slate-400">Status da Aplicação</span>
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mt-1">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> 100% Funcional e Homologado
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="switchTab('passo1')" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-md transition flex items-center gap-2">
+                        Iniciar Navegação Guiada <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                    <button onclick="baixarScriptPython()" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl shadow-md transition flex items-center gap-2">
+                        <i class="fa-brands fa-python text-emerald-400"></i> Obter Script Python (.py)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Introdução e Objetivos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Card Introdução -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 text-brand-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900">Introdução ao Projeto</h2>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        O avanço da tecnologia na área da saúde tem exigido soluções integradas que otimizem o atendimento, garantam a consistência dos dados do paciente e aumentem a eficiência operacional de clínicas e hospitais. O projeto <strong>Clínica Vida+</strong> foi concebido como uma resposta acadêmica prática e abrangente a esses desafios.
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Através da junção de fundamentos teóricos de Computação (gerenciamento ágil, estruturas de dados FIFO, circuitos e tabelas de decisão lógica proposicional e diagramação UML), o sistema simula o ciclo completo de desenvolvimento de software em saúde.
+                    </p>
+                </div>
+
+                <!-- Card Objetivos -->
+                <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900">Objetivos Estratégicos</h2>
+                    </div>
+                    <ul class="space-y-3 text-sm text-slate-600">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                            <span><strong>Gestão de Tarefas:</strong> Estruturar o planejamento de desenvolvimento do sistema em Sprints utilizando visualização Kanban.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                            <span><strong>Construção de Scripts:</strong> Desenvolver um módulo Python com manipulação de listas e dicionários para dados cadastrais e estatísticos.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                            <span><strong>Modelagem Lógica:</strong> Validar regras de negócio para liberação de consultas normais e de emergência via lógica proposicional.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                            <span><strong>Filas de Atendimento:</strong> Implementar o conceito de fila FIFO para gestão justa de ordem de chamada de pacientes.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-check text-teal-500 mt-1"></i>
+                            <span><strong>Engenharia UML:</strong> Representar os limites do sistema e papéis operacionais (Secretária e Médico) em Diagramas de Casos de Uso.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PASSO 1: QUADRO KANBAN & BANNER TRELLO -->
+        <!-- ================================================================= -->
+        <section id="content-passo1" class="tab-content space-y-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-brand-600 font-semibold text-xs uppercase tracking-wider">
+                            <span>Passo 01</span> &bull; <span>Engenharia de Processos</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Quadro Kanban de Gestão de Sprints</h2>
+                        <p class="text-slate-500 text-sm">Acompanhamento ágil inspirado no Trello. Arraste ou mova tarefas entre as listas da Sprint.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="abrirModalRelatorioSprint()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-brand-400"></i> Relatório da Sprint
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QUADRO VISUAL TRELLO (4 COLUNAS) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-100 p-4 rounded-xl border border-slate-200 min-h-[480px]">
+                    
+                    <!-- Coluna 1: Backlog -->
+                    <div class="bg-slate-200/70 p-3 rounded-xl flex flex-col">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <h3 class="font-bold text-sm text-slate-700 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span> Backlog
+                            </h3>
+                            <span id="count-backlog" class="text-xs bg-slate-300 text-slate-700 font-bold px-2 py-0.5 rounded-full">3</span>
+                        </div>
+                        <div id="col-backlog" class="space-y-3 flex-1 overflow-y-auto">
+                            <!-- Cards dinamicos via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Coluna 2: Sprint Atual -->
+                    <div class="bg-blue-50/70 p-3 rounded-xl flex flex-col border border-blue-100">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <h3 class="font-bold text-sm text-brand-800 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> Sprint Atual
+                            </h3>
+                            <span id="count-sprint" class="text-xs bg-brand-200 text-brand-800 font-bold px-2 py-0.5 rounded-full">2</span>
+                        </div>
+                        <div id="col-sprint" class="space-y-3 flex-1 overflow-y-auto">
+                            <!-- Cards dinamicos via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Coluna 3: Em Progresso -->
+                    <div class="bg-amber-50/70 p-3 rounded-xl flex flex-col border border-amber-100">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <h3 class="font-bold text-sm text-amber-800 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Em Progresso
+                            </h3>
+                            <span id="count-progresso" class="text-xs bg-amber-200 text-amber-800 font-bold px-2 py-0.5 rounded-full">2</span>
+                        </div>
+                        <div id="col-progresso" class="space-y-3 flex-1 overflow-y-auto">
+                            <!-- Cards dinamicos via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Coluna 4: Concluído -->
+                    <div class="bg-emerald-50/70 p-3 rounded-xl flex flex-col border border-emerald-100">
+                        <div class="flex items-center justify-between mb-3 px-1">
+                            <h3 class="font-bold text-sm text-emerald-800 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Concluído
+                            </h3>
+                            <span id="count-concluido" class="text-xs bg-emerald-200 text-emerald-800 font-bold px-2 py-0.5 rounded-full">2</span>
+                        </div>
+                        <div id="col-concluido" class="space-y-3 flex-1 overflow-y-auto">
+                            <!-- Cards dinamicos via JS -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- GUIA DE INTEGRAÇÃO / REPLICAÇÃO NO TRELLO REAL -->
+                <div class="mt-8 bg-slate-900 text-white p-6 rounded-xl relative overflow-hidden">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2 text-teal-400 font-semibold text-xs uppercase tracking-wider">
+                                <i class="fa-brands fa-trello"></i> Instruções para Trello Real
+                            </div>
+                            <h3 class="text-lg font-bold">Como replicar este quadro no Trello Oficial:</h3>
+                            <p class="text-slate-300 text-xs leading-relaxed max-w-2xl">
+                                Este painel foi construído de forma nativa para demonstração acadêmica. Para criar a versão sincronizada oficial no Trello:
+                                <br>1. Acesse <strong>Trello.com</strong> &rarr; Crie um novo quadro público/privado "Clínica Vida+".
+                                <br>2. Crie as 4 listas exatamente como acima: <code>Backlog</code>, <code>Sprint Atual</code>, <code>Em Progresso</code> e <code>Concluído</code>.
+                                <br>3. Adicione etiquetas de cor: <span class="text-emerald-400 font-mono">Alta</span>, <span class="text-amber-400 font-mono">Média</span> e <span class="text-blue-400 font-mono">Normal</span>.
+                            </p>
+                        </div>
+                        <a href="https://trello.com" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg shadow transition flex items-center gap-2 shrink-0">
+                            Acessar Trello Oficial <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PASSO 2: PYTHON CODE & EMULADOR DE TERMINAL INTERATIVO -->
+        <!-- ================================================================= -->
+        <section id="content-passo2" class="tab-content space-y-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs uppercase tracking-wider">
+                            <span>Passo 02</span> &bull; <span>Desenvolvimento Python</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Script `clinica_vida.py` & Emulador de Terminal</h2>
+                        <p class="text-slate-500 text-sm">Implementação em Python utilizando listas e dicionários com simulador CLI interativo.</p>
+                    </div>
+                    <button onclick="baixarScriptPython()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Baixar Arquivo clinica_vida.py
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- LADO ESQUERDO: CÓDIGO FONTE PYTHON FORMATADO -->
+                    <div class="bg-slate-900 rounded-xl p-4 text-slate-200 font-mono text-xs overflow-x-auto border border-slate-800 flex flex-col h-[520px]">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3 text-slate-400">
+                            <span class="flex items-center gap-2 text-slate-300 font-semibold">
+                                <i class="fa-brands fa-python text-emerald-400"></i> clinica_vida.py
+                            </span>
+                            <button onclick="copiarCodigoPython()" class="hover:text-white text-xs flex items-center gap-1 bg-slate-800 px-2 py-1 rounded">
+                                <i class="fa-regular fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <pre id="python-code-display" class="flex-1 overflow-y-auto leading-relaxed text-slate-300">
+<span class="text-slate-500"># =========================================================</span>
+<span class="text-slate-500"># PROJETO ACADÊMICO: CLÍNICA VIDA+</span>
+<span class="text-slate-500"># ARQUIVO: clinica_vida.py</span>
+<span class="text-slate-500"># ESTUTURAS: Listas e Dicionários para gestão cadastral</span>
+<span class="text-slate-500"># =========================================================</span>
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">exibir_menu</span>():
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\n" + "="*40</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"      CLÍNICA VIDA+ - GESTÃO DE PACIENTES"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"="*40</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"1. Cadastrar paciente"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"2. Ver estatísticas"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"3. Buscar paciente pelo nome"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"4. Listar todos os pacientes"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"5. Sair"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"="*40</span>)
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">cadastrar_paciente</span>(pacientes):
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\n--- CADASTRO DE PACIENTE ---"</span>)
+    nome = <span class="text-amber-300">input</span>(<span class="text-emerald-300">"Nome completo: "</span>).strip()
+    <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> nome:
+        <span class="text-amber-300">print</span>(<span class="text-rose-400">"Erro: O nome não pode ser vazio!"</span>)
+        <span class="text-purple-400">return</span>
+
+    <span class="text-purple-400">try</span>:
+        idade = <span class="text-amber-300">int</span>(<span class="text-amber-300">input</span>(<span class="text-emerald-300">"Idade (anos): "</span>))
+        <span class="text-purple-400">if</span> idade < 0 <span class="text-purple-400">or</span> idade > 130:
+            <span class="text-amber-300">print</span>(<span class="text-rose-400">"Erro: Idade inválida!"</span>)
+            <span class="text-purple-400">return</span>
+    <span class="text-purple-400">except</span> ValueError:
+        <span class="text-amber-300">print</span>(<span class="text-rose-400">"Erro: A idade deve ser um número inteiro!"</span>)
+        <span class="text-purple-400">return</span>
+
+    telefone = <span class="text-amber-300">input</span>(<span class="text-emerald-300">"Telefone de contato: "</span>).strip()
+    <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> telefone:
+        <span class="text-amber-300">print</span>(<span class="text-rose-400">"Erro: Telefone não pode ser vazio!"</span>)
+        <span class="text-purple-400">return</span>
+
+    paciente = {
+        <span class="text-emerald-300">"nome"</span>: nome,
+        <span class="text-emerald-300">"idade"</span>: idade,
+        <span class="text-emerald-300">"telefone"</span>: telefone
+    }
+    pacientes.append(paciente)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-400">f"Éxito: Paciente '{nome}' cadastrado com sucesso!"</span>)
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">ver_estatisticas</span>(pacientes):
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\n--- ESTATÍSTICAS DA CLÍNICA ---"</span>)
+    <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> pacientes:
+        <span class="text-amber-300">print</span>(<span class="text-amber-400">"Aviso: Nenhum paciente cadastrado no sistema."</span>)
+        <span class="text-purple-400">return</span>
+
+    total = <span class="text-amber-300">len</span>(pacientes)
+    soma_idades = <span class="text-amber-300">sum</span>(p[<span class="text-emerald-300">"idade"</span>] <span class="text-purple-400">for</span> p <span class="text-purple-400">in</span> pacientes)
+    media_idade = soma_idades / total
+
+    mais_novo = <span class="text-amber-300">min</span>(pacientes, key=<span class="text-purple-400">lambda</span> p: p[<span class="text-emerald-300">"idade"</span>])
+    mais_velho = <span class="text-amber-300">max</span>(pacientes, key=<span class="text-purple-400">lambda</span> p: p[<span class="text-emerald-300">"idade"</span>])
+
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"Total de pacientes cadastrados: {total}"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"Idade média dos pacientes: {media_idade:.1f} anos"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"Paciente mais novo: {mais_novo['nome']} ({mais_novo['idade']} anos)"</span>)
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"Paciente mais velho: {mais_velho['nome']} ({mais_velho['idade']} anos)"</span>)
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">buscar_paciente</span>(pacientes):
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\n--- BUSCAR PACIENTE ---"</span>)
+    <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> pacientes:
+        <span class="text-amber-300">print</span>(<span class="text-amber-400">"Aviso: Nenhum paciente cadastrado no sistema."</span>)
+        <span class="text-purple-400">return</span>
+
+    termo = <span class="text-amber-300">input</span>(<span class="text-emerald-300">"Digite o nome para buscar: "</span>).strip().lower()
+    encontrados = [p <span class="text-purple-400">for</span> p <span class="text-purple-400">in</span> pacientes <span class="text-purple-400">if</span> termo <span class="text-purple-400">in</span> p[<span class="text-emerald-300">"nome"</span>].lower()]
+
+    <span class="text-purple-400">if</span> encontrados:
+        <span class="text-purple-400">for</span> p <span class="text-purple-400">in</span> encontrados:
+            <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"-> Nome: {p['nome']} | Idade: {p['idade']} | Tel: {p['telefone']}"</span>)
+    <span class="text-purple-400">else</span>:
+        <span class="text-amber-300">print</span>(<span class="text-rose-400">f"Nenhum paciente encontrado com termo '{termo}'."</span>)
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">listar_pacientes</span>(pacientes):
+    <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\n--- LISTA DE PACIENTES ---"</span>)
+    <span class="text-purple-400">if</span> <span class="text-purple-400">not</span> pacientes:
+        <span class="text-amber-300">print</span>(<span class="text-amber-400">"Aviso: Nenhum paciente cadastrado."</span>)
+        <span class="text-purple-400">return</span>
+
+    <span class="text-purple-400">for</span> idx, p <span class="text-purple-400">in</span> <span class="text-amber-300">enumerate</span>(pacientes, 1):
+        <span class="text-amber-300">print</span>(<span class="text-emerald-300">f"{idx}. {p['nome']} | Idade: {p['idade']} | Tel: {p['telefone']}"</span>)
+
+<span class="text-purple-400">def</span> <span class="text-blue-400">main</span>():
+    pacientes = [
+        {<span class="text-emerald-300">"nome"</span>: <span class="text-emerald-300">"Ana Maria Silva"</span>, <span class="text-emerald-300">"idade"</span>: 28, <span class="text-emerald-300">"telefone"</span>: <span class="text-emerald-300">"(11) 98765-4321"</span>},
+        {<span class="text-emerald-300">"nome"</span>: <span class="text-emerald-300">"Carlos Rocha"</span>, <span class="text-emerald-300">"idade"</span>: 64, <span class="text-emerald-300">"telefone"</span>: <span class="text-emerald-300">"(11) 97123-8899"</span>},
+        {<span class="text-emerald-300">"nome"</span>: <span class="text-emerald-300">"Beatriz Mendonça"</span>, <span class="text-emerald-300">"idade"</span>: 12, <span class="text-emerald-300">"telefone"</span>: <span class="text-emerald-300">"(11) 95544-3322"</span>}
+    ]
+
+    <span class="text-purple-400">while</span> <span class="text-emerald-400">True</span>:
+        exibir_menu()
+        opcao = <span class="text-amber-300">input</span>(<span class="text-emerald-300">"Escolha uma opção (1-5): "</span>).strip()
+        <span class="text-purple-400">if</span> opcao == <span class="text-emerald-300">"1"</span>: cadastrar_paciente(pacientes)
+        <span class="text-purple-400">elif</span> opcao == <span class="text-emerald-300">"2"</span>: ver_estatisticas(pacientes)
+        <span class="text-purple-400">elif</span> opcao == <span class="text-emerald-300">"3"</span>: buscar_paciente(pacientes)
+        <span class="text-purple-400">elif</span> opcao == <span class="text-emerald-300">"4"</span>: listar_pacientes(pacientes)
+        <span class="text-purple-400">elif</span> opcao == <span class="text-emerald-300">"5"</span>: <span class="text-amber-300">print</span>(<span class="text-emerald-300">"\nEncerrando sistema... Até logo!"</span>); <span class="text-purple-400">break</span>
+        <span class="text-purple-400">else</span>: <span class="text-amber-300">print</span>(<span class="text-rose-400">"Opção inválida!"</span>)
+
+<span class="text-purple-400">if</span> __name__ == <span class="text-emerald-300">"__main__"</span>:
+    main()
+                        </pre>
+                    </div>
+
+                    <!-- LADO DIREITO: EMULADOR INTERATIVO DE TERMINAL -->
+                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 flex flex-col h-[520px] shadow-2xl">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                                <span class="text-xs font-mono text-slate-400 ml-2">Terminal Virtual - `python clinica_vida.py`</span>
+                            </div>
+                            <button onclick="reiniciarTerminal()" class="text-xs text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded">
+                                <i class="fa-solid fa-rotate-right"></i> Reiniciar
+                            </button>
+                        </div>
+
+                        <!-- Display do Terminal -->
+                        <div id="terminal-screen" class="flex-1 font-mono text-xs text-emerald-400 overflow-y-auto terminal-scroll space-y-1 p-2 bg-slate-900/60 rounded">
+                            <!-- Linhas inseridas dinamicamente via JS -->
+                        </div>
+
+                        <!-- Prompt de Entrada de Comandos -->
+                        <div class="mt-3 flex items-center gap-2 bg-slate-900 px-3 py-2 rounded-lg border border-slate-800">
+                            <span id="terminal-prompt" class="text-emerald-400 font-mono text-xs shrink-0">&gt;</span>
+                            <input id="terminal-input" type="text" placeholder="Digite uma opção (1-5) e pressione Enter..." class="w-full bg-transparent font-mono text-xs text-white focus:outline-none" onkeydown="tratarInputTerminal(event)" autofocus>
+                            <button onclick="enviarComandoTerminal()" class="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-mono font-bold hover:bg-emerald-500">Enviar</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PASSO 3: LÓGICA PROPOSICIONAL & TABELAS-VERDADE -->
+        <!-- ================================================================= -->
+        <section id="content-passo3" class="tab-content space-y-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-purple-600 font-semibold text-xs uppercase tracking-wider">
+                            <span>Passo 03</span> &bull; <span>Lógica Proposicional & Circuitos de Decisão</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Validação Logica de Atendimento</h2>
+                        <p class="text-slate-500 text-sm">Análise proposicional para liberação de consultas normais e atendimentos de emergência.</p>
+                    </div>
+                </div>
+
+                <!-- DEFINIÇÃO DAS VARIÁVEIS -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                        <span class="font-bold text-purple-900 text-sm">Variável A</span>
+                        <p class="text-xs text-purple-700">Tem agendamento prévio</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                        <span class="font-bold text-purple-900 text-sm">Variável B</span>
+                        <p class="text-xs text-purple-700">Documentos válidos</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                        <span class="font-bold text-purple-900 text-sm">Variável C</span>
+                        <p class="text-xs text-purple-700">Médico disponível</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-xl border border-purple-100">
+                        <span class="font-bold text-purple-900 text-sm">Variável D</span>
+                        <p class="text-xs text-purple-700">Pagamentos em dia</p>
+                    </div>
+                </div>
+
+                <!-- EXPRESSÕES MATEMÁTICAS / LÓGICAS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-slate-900 text-white p-5 rounded-xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold text-purple-400 uppercase tracking-wider">Modalidade 1</span>
+                            <span class="text-xs bg-emerald-900 text-emerald-300 font-bold px-2 py-0.5 rounded">3 / 16 Liberados</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Consulta Normal</h3>
+                        <div class="font-mono bg-slate-950 p-3 rounded border border-slate-800 text-amber-300 text-sm mb-3">
+                            (A ∧ B ∧ C) ∨ (B ∧ C ∧ D)
+                        </div>
+                        <p class="text-xs text-slate-400">
+                            <strong>Exigência:</strong> O atendimento normal exige documentos válidos e médico disponível, além de agendamento prévio OU pagamentos em dia.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 text-white p-5 rounded-xl border border-slate-800">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Modalidade 2</span>
+                            <span class="text-xs bg-emerald-900 text-emerald-300 font-bold px-2 py-0.5 rounded">6 / 16 Liberados</span>
+                        </div>
+                        <h3 class="text-lg font-bold mb-2">Atendimento de Emergência</h3>
+                        <div class="font-mono bg-slate-950 p-3 rounded border border-slate-800 text-rose-300 text-sm mb-3">
+                            C ∧ (B ∨ D)
+                        </div>
+                        <p class="text-xs text-slate-400">
+                            <strong>Exigência:</strong> Em emergência, necessita impreterivelmente de médico disponível E (documentos válidos OU pagamentos regulares).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ANÁLISE DE CASO ESPECÍFICO (SOLICITADO) -->
+                <div class="bg-amber-50 border border-amber-200 p-5 rounded-xl mb-8">
+                    <h3 class="font-bold text-amber-900 text-base mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-microscope text-amber-600"></i> Estudo de Caso de Teste Solicitado: (A=F, B=V, C=V, D=F)
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-amber-950">
+                        <div class="bg-white p-3 rounded-lg border border-amber-200">
+                            <span class="font-bold block mb-1">Avaliação Consulta Normal:</span>
+                            <code>(F ∧ V ∧ V) ∨ (V ∧ V ∧ F) &rArr; (F) ∨ (F) &rArr; <strong>FALSO (Bloqueado)</strong></code>
+                            <p class="mt-1 text-slate-600">
+                                <em>Justificativa:</em> Como o paciente não tem agendamento (A=F) nem está com pagamento em dia (D=F), nenhuma das duas condições disjuntivas é satisfeita.
+                            </p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-amber-200">
+                            <span class="font-bold block mb-1">Avaliação Emergência:</span>
+                            <code>V ∧ (V ∨ F) &rArr; V ∧ (V) &rArr; <strong>VERDADEIRO (Liberado)</strong></code>
+                            <p class="mt-1 text-slate-600">
+                                <em>Justificativa:</em> O médico está disponível (C=V) e os documentos estão válidos (B=V), permitindo a liberação do atendimento emergencial.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SIMULADOR INTERATIVO DE TESTE DE CONDIÇÕES -->
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8">
+                    <h3 class="font-bold text-slate-900 text-sm mb-4">Simulador Interativo em Tempo Real:</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border border-slate-200">
+                            <input type="checkbox" id="sim-A" onchange="atualizarSimuladorLogica()" class="w-4 h-4 text-purple-600 rounded">
+                            <span class="text-xs font-semibold">A: Agendamento</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border border-slate-200">
+                            <input type="checkbox" id="sim-B" checked onchange="atualizarSimuladorLogica()" class="w-4 h-4 text-purple-600 rounded">
+                            <span class="text-xs font-semibold">B: Doc. Válidos</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border border-slate-200">
+                            <input type="checkbox" id="sim-C" checked onchange="atualizarSimuladorLogica()" class="w-4 h-4 text-purple-600 rounded">
+                            <span class="text-xs font-semibold">C: Médico Disp.</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-lg border border-slate-200">
+                            <input type="checkbox" id="sim-D" onchange="atualizarSimuladorLogica()" class="w-4 h-4 text-purple-600 rounded">
+                            <span class="text-xs font-semibold">D: Pagamento Dia</span>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-wrap gap-4 text-xs font-bold">
+                        <div id="sim-res-normal" class="px-4 py-2 rounded-lg bg-rose-100 text-rose-800 border border-rose-200">
+                            Consulta Normal: BLOQUEADO (F)
+                        </div>
+                        <div id="sim-res-emergencia" class="px-4 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            Emergência: LIBERADO (V)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELAS VERDADE COMPLETAS DE 16 COMBINAÇÕES -->
+                <div class="space-y-6">
+                    <h3 class="font-bold text-slate-900 text-base">Tabelas-Verdade Completas (16 Combinações cada)</h3>
+                    
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-center text-xs font-mono">
+                            <thead class="bg-slate-900 text-white uppercase">
+                                <tr>
+                                    <th class="p-2 border-r border-slate-800">Linha</th>
+                                    <th class="p-2 border-r border-slate-800">A (Agend.)</th>
+                                    <th class="p-2 border-r border-slate-800">B (Doc.)</th>
+                                    <th class="p-2 border-r border-slate-800">C (Médico)</th>
+                                    <th class="p-2 border-r border-slate-800">D (Pag.)</th>
+                                    <th class="p-2 border-r border-slate-800 bg-purple-900">Consulta Normal: (A∧B∧C) ∨ (B∧C∧D)</th>
+                                    <th class="p-2 bg-rose-900">Emergência: C ∧ (B∨D)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="truth-table-body" class="divide-y divide-slate-200 bg-white">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PASSO 4: ALGORITMO FIFO & FILA DE PACIENTES -->
+        <!-- ================================================================= -->
+        <section id="content-passo4" class="tab-content space-y-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-amber-600 font-semibold text-xs uppercase tracking-wider">
+                            <span>Passo 04</span> &bull; <span>Estruturas de Dados</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Algoritmo de Fila FIFO (First-In, First-Out)</h2>
+                        <p class="text-slate-500 text-sm">Simulação e pseudocódigo estruturado para gerenciamento de fila de espera de atendimento.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- LADO ESQUERDO: PSEUDOCÓDIGO -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-code text-amber-500"></i> Pseudocódigo Estruturado (Portugol)
+                        </h3>
+                        <div class="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-xs leading-relaxed border border-slate-800 overflow-x-auto">
+<pre class="text-amber-300">
+Algoritmo FilaAtendimentoClinicaVida
+    // Declaração do Registro do Paciente
+    Tipo Paciente = Registro
+        nome: Caractere
+        cpf: Caractere
+    FimRegistro
+
+    // Variáveis Globais
+    filaPacientes: Vetor[1..100] de Paciente
+    inicioFila, fimFila: Inteiro
+
+Inicio
+    inicioFila <- 1
+    fimFila <- 0
+
+    // 1. Inserção dos 3 Pacientes na Fila (Enqueue)
+    ENFILEIRAR("Carlos Alberto", "111.222.333-44")
+    ENFILEIRAR("Mariana Souza", "555.666.777-88")
+    ENFILEIRAR("Roberto Alves", "999.000.111-22")
+
+    Escreva("=== ESTADO INICIAL DA FILA (3 PACIENTES) ===")
+    EXIBIR_FILA()
+
+    // 2. Remoção do Primeiro Paciente para Atendimento (Dequeue)
+    pacienteAtendido <- DESENFILEIRAR()
+    Escreva("--> Paciente Chamado para Consultório:", pacienteAtendido.nome)
+
+    // 3. Exibição dos Pacientes Restantes mantendo a Ordem FIFO
+    Escreva("=== PACIENTES RESTANTES AGUARDANDO NA FILA ===")
+    EXIBIR_FILA()
+FimAlgoritmo
+</pre>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-xs text-amber-900 space-y-2">
+                            <h4 class="font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-lightbulb"></i> Conceito Teórico FIFO:
+                            </h4>
+                            <p>
+                                A estrutura de <strong>Fila FIFO</strong> garante justiça absoluta no atendimento de saúde: o primeiro paciente a realizar o cadastro de chegada é estritamente o primeiro a ser chamado pelo médico. A complexidade assintótica para inserção (enqueue) e remoção (dequeue) é de <code>O(1)</code>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- LADO DIREITO: SIMULADOR INTERATIVO DA FILA -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-users-line text-brand-600"></i> Simulação Interativa da Fila de Espera
+                        </h3>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                            <!-- Controles da Fila -->
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="atenderProximoFila()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1">
+                                    <i class="fa-solid fa-user-check"></i> Chamar Próximo (Dequeue)
+                                </button>
+                                <button onclick="resetarFilaSimulada()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-left"></i> Resetar Fila (3 Pacientes)
+                                </button>
+                            </div>
+
+                            <!-- Formulário para Inserção Adicional -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-200">
+                                <input id="fifo-nome" type="text" placeholder="Nome do Paciente" class="px-3 py-1.5 text-xs rounded border border-slate-300 focus:outline-none focus:border-brand-500">
+                                <input id="fifo-cpf" type="text" placeholder="CPF (000.000.000-00)" class="px-3 py-1.5 text-xs rounded border border-slate-300 focus:outline-none focus:border-brand-500">
+                                <button onclick="adicionarPacienteFila()" class="px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs rounded transition">
+                                    + Enfileirar
+                                </button>
+                            </div>
+
+                            <!-- Visualizador Visual dos Nodes da Fila -->
+                            <div class="pt-4">
+                                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">Ordem Atual de Espera (Frente &rarr; Fim):</span>
+                                <div id="fifo-nodes-container" class="space-y-2 min-h-[180px]">
+                                    <!-- Nodes via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Caixas de Histórico de Chamada -->
+                            <div id="fifo-historico" class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 text-xs text-emerald-900 hidden">
+                                <strong>Último Chamado:</strong> <span id="fifo-ultimo-chamado">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PASSO 5: DIAGRAMA DE CASOS DE USO UML -->
+        <!-- ================================================================= -->
+        <section id="content-passo5" class="tab-content space-y-8">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-rose-600 font-semibold text-xs uppercase tracking-wider">
+                            <span>Passo 05</span> &bull; <span>Engenharia de Software UML</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Diagrama de Casos de Uso (UML 2.5)</h2>
+                        <p class="text-slate-500 text-sm">Representação vetorial do Limite do Sistema, Atores e Relacionamentos `&lt;&lt;include&gt;&gt;`.</p>
+                    </div>
+                </div>
+
+                <!-- ÁREA DO DIAGRAMA SVG VETORIAL -->
+                <div class="bg-slate-900 rounded-xl p-6 border border-slate-800 text-white overflow-x-auto flex justify-center shadow-inner">
+                    <svg width="820" height="480" viewBox="0 0 820 480" class="max-w-full h-auto">
+                        <defs>
+                            <!-- Marcador de Seta para Includes -->
+                            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+                            </marker>
+                        </defs>
+
+                        <!-- BOUNDARY / LIMITE DO SISTEMA -->
+                        <rect x="180" y="20" width="460" height="440" rx="16" fill="#0f172a" stroke="#334155" stroke-width="2" stroke-dasharray="4" />
+                        <text x="200" y="45" fill="#38bdf8" font-size="13" font-weight="bold" font-family="Inter">Sistema de Gestão - Clínica Vida+</text>
+
+                        <!-- ATOR: SECRETÁRIA (ESQUERDA) -->
+                        <g transform="translate(60, 180)">
+                            <!-- Boneco Ator -->
+                            <circle cx="20" cy="20" r="14" fill="none" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="34" x2="20" y2="70" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="0" y1="48" x2="40" y2="48" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="70" x2="4" y2="100" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="70" x2="36" y2="100" stroke="#e2e8f0" stroke-width="2" />
+                            <text x="20" y="120" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold" font-family="Inter">Secretária</text>
+                        </g>
+
+                        <!-- ATOR: MÉDICO (DIREITA) -->
+                        <g transform="translate(720, 180)">
+                            <!-- Boneco Ator -->
+                            <circle cx="20" cy="20" r="14" fill="none" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="34" x2="20" y2="70" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="0" y1="48" x2="40" y2="48" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="70" x2="4" y2="100" stroke="#e2e8f0" stroke-width="2" />
+                            <line x1="20" y1="70" x2="36" y2="100" stroke="#e2e8f0" stroke-width="2" />
+                            <text x="20" y="120" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold" font-family="Inter">Médico</text>
+                        </g>
+
+                        <!-- CASOS DE USO (ELIPSES) -->
+                        <!-- Cadastrar Paciente -->
+                        <g transform="translate(220, 70)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#1e293b" stroke="#0284c7" stroke-width="2" />
+                            <text x="80" y="26" text-anchor="middle" fill="#ffffff" font-size="11" font-family="Inter">Cadastrar paciente</text>
+                        </g>
+
+                        <!-- Agendar Consulta -->
+                        <g transform="translate(220, 135)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#1e293b" stroke="#0284c7" stroke-width="2" />
+                            <text x="80" y="26" text-anchor="middle" fill="#ffffff" font-size="11" font-family="Inter">Agendar consulta</text>
+                        </g>
+
+                        <!-- Confirmar Consulta -->
+                        <g transform="translate(220, 200)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#1e293b" stroke="#0284c7" stroke-width="2" />
+                            <text x="80" y="26" text-anchor="middle" fill="#ffffff" font-size="11" font-family="Inter">Confirmar consulta</text>
+                        </g>
+
+                        <!-- Cancelar Consulta -->
+                        <g transform="translate(330, 265)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#1e293b" stroke="#f43f5e" stroke-width="2" />
+                            <text x="80" y="26" text-anchor="middle" fill="#ffffff" font-size="11" font-family="Inter">Cancelar consulta</text>
+                        </g>
+
+                        <!-- Gerar Receita -->
+                        <g transform="translate(460, 330)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#1e293b" stroke="#10b981" stroke-width="2" />
+                            <text x="80" y="26" text-anchor="middle" fill="#ffffff" font-size="11" font-family="Inter">Gerar receita</text>
+                        </g>
+
+                        <!-- INCLUDES (OBRIGATÓRIOS) -->
+                        <!-- Verificar Cadastro do Paciente -->
+                        <g transform="translate(460, 160)">
+                            <ellipse cx="85" cy="22" rx="80" ry="22" fill="#0f172a" stroke="#eab308" stroke-width="1.5" stroke-dasharray="3,3" />
+                            <text x="85" y="26" text-anchor="middle" fill="#fef08a" font-size="10" font-family="Inter">Verificar cadastro paciente</text>
+                        </g>
+
+                        <!-- Imprimir Receita -->
+                        <g transform="translate(220, 390)">
+                            <ellipse cx="80" cy="22" rx="75" ry="22" fill="#0f172a" stroke="#eab308" stroke-width="1.5" stroke-dasharray="3,3" />
+                            <text x="80" y="26" text-anchor="middle" fill="#fef08a" font-size="10" font-family="Inter">Imprimir receita</text>
+                        </g>
+
+                        <!-- LINHAS DE ASSOCIAÇÃO (ATORES -> CASOS) -->
+                        <!-- Secretária associações -->
+                        <line x1="100" y1="200" x2="220" y2="92" stroke="#64748b" stroke-width="1.5" />
+                        <line x1="100" y1="210" x2="220" y2="157" stroke="#64748b" stroke-width="1.5" />
+                        <line x1="100" y1="220" x2="220" y2="222" stroke="#64748b" stroke-width="1.5" />
+                        <line x1="100" y1="230" x2="330" y2="280" stroke="#64748b" stroke-width="1.5" />
+
+                        <!-- Médico associações -->
+                        <line x1="720" y1="230" x2="490" y2="280" stroke="#64748b" stroke-width="1.5" />
+                        <line x1="720" y1="240" x2="620" y2="345" stroke="#64748b" stroke-width="1.5" />
+
+                        <!-- SETAS INCLUDE (TRACEJADAS COM TEXTO) -->
+                        <!-- Agendar -> Verificar Cadastro -->
+                        <path d="M 370 157 L 460 172" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)" />
+                        <text x="405" y="155" fill="#38bdf8" font-size="9" font-family="Inter">&lt;&lt;include&gt;&gt;</text>
+
+                        <!-- Confirmar -> Verificar Cadastro -->
+                        <path d="M 370 222 L 460 192" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)" />
+                        <text x="405" y="218" fill="#38bdf8" font-size="9" font-family="Inter">&lt;&lt;include&gt;&gt;</text>
+
+                        <!-- Gerar Receita -> Imprimir Receita -->
+                        <path d="M 460 352 L 370 395" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)" />
+                        <text x="420" y="385" fill="#38bdf8" font-size="9" font-family="Inter">&lt;&lt;include&gt;&gt;</text>
+                    </svg>
+                </div>
+
+                <!-- ESPECIFICAÇÃO DE CASOS DE USO -->
+                <div class="mt-6 bg-slate-50 p-5 rounded-xl border border-slate-200">
+                    <h3 class="font-bold text-slate-900 text-sm mb-3">Tabela de Mapeamento dos Casos de Uso:</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-200 text-slate-700 uppercase font-bold">
+                                <tr>
+                                    <th class="p-2.5">Caso de Uso</th>
+                                    <th class="p-2.5">Ator Principal</th>
+                                    <th class="p-2.5">Relacionamento Include</th>
+                                    <th class="p-2.5">Descrição Operacional</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr>
+                                    <td class="p-2.5 font-bold">Cadastrar Paciente</td>
+                                    <td class="p-2.5">Secretária</td>
+                                    <td class="p-2.5 text-slate-400">-</td>
+                                    <td class="p-2.5">Registo inicial dos dados pessoais e contato do paciente no banco.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold">Agendar Consulta</td>
+                                    <td class="p-2.5">Secretária</td>
+                                    <td class="p-2.5 text-brand-600 font-mono">&lt;&lt;include&gt;&gt; Verificar cadastro</td>
+                                    <td class="p-2.5">Reserva de horário de atendimento na agenda médica da clínica.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold">Confirmar Consulta</td>
+                                    <td class="p-2.5">Secretária</td>
+                                    <td class="p-2.5 text-brand-600 font-mono">&lt;&lt;include&gt;&gt; Verificar cadastro</td>
+                                    <td class="p-2.5">Validação de presença e recepção presencial do paciente.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold">Cancelar Consulta</td>
+                                    <td class="p-2.5">Secretária / Médico</td>
+                                    <td class="p-2.5 text-slate-400">-</td>
+                                    <td class="p-2.5">Desmarcação do agendamento mediante aviso prévio do paciente/médico.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2.5 font-bold">Gerar Receita</td>
+                                    <td class="p-2.5">Médico</td>
+                                    <td class="p-2.5 text-brand-600 font-mono">&lt;&lt;include&gt;&gt; Imprimir receita</td>
+                                    <td class="p-2.5">Emissão de prescrição medicamentosa ao término da consulta.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SEÇÃO CONCLUSÃO & REFERÊNCIAS BIBLIOGRÁFICAS -->
+        <!-- ================================================================= -->
+        <section id="content-conclusao" class="tab-content space-y-8">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-8">
+                
+                <!-- CONCLUSÃO -->
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-900">Considerações Finais & Conclusão</h2>
+                    </div>
+                    <div class="prose prose-slate max-w-none text-sm text-slate-600 leading-relaxed space-y-4">
+                        <p>
+                            O desenvolvimento do projeto <strong>Clínica Vida+</strong> permitiu integrar de forma pragmática e multidisciplinar os conceitos cruciais da Ciência da Computação aplicados à gestão de saúde. A adoção da metodologia ágil Kanban possibilitou a visibilidade completa do fluxo de entregas, otimizando o ciclo de desenvolvimento através de Sprints bem delimitadas.
+                        </p>
+                        <p>
+                            A implementação do script em Python demonstrou a eficiência do uso de estruturas de dados fundamentais (listas e dicionários) para manipulação rápida em memória de registros cadastrais e cálculos estatísticos. Em paralelo, a aplicação da Fila FIFO assegurou o cumprimento rigoroso e imparcial da ordem de atendimento presencial.
+                        </p>
+                        <p>
+                            Por fim, a modelagem lógica proposicional e o Diagrama de Casos de Uso UML homologaram as regras de negócio clínicas, garantindo a rastreabilidade e a segurança operacional entre os perfis de secretária e médico.
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200">
+
+                <!-- REFERÊNCIAS BIBLIOGRÁFICAS -->
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-bookmark text-brand-600"></i> Referências & Ferramentas Utilizadas
+                    </h3>
+                    <ul class="space-y-3 text-xs text-slate-600 font-mono bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <li>[1] CORMEN, T. H. et al. <strong>Algoritmos: Teoria e Prática</strong>. 3. ed. Rio de Janeiro: Elsevier, 2012.</li>
+                        <li>[2] PRESSMAN, R. S.; MAXIM, B. R. <strong>Engenharia de Software: Uma Abordagem Profissional</strong>. 8. ed. Porto Alegre: AMGH, 2016.</li>
+                        <li>[3] PYTHON SOFTWARE FOUNDATION. <strong>Data Structures — Python 3.11 Documentation</strong>. Disponível em: &lt;https://docs.python.org/3/tutorial/datastructures.html&gt;.</li>
+                        <li>[4] OMG. <strong>Unified Modeling Language (UML) Specification Version 2.5.1</strong>. Object Management Group, 2017.</li>
+                        <li>[5] TAILWIND LABS. <strong>Tailwind CSS - Rapidly build modern websites</strong>. Disponível em: &lt;https://tailwindcss.com&gt;.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ DA APLICAÇÃO -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-6 border-t border-slate-800 mt-auto no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center sm:flex sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+            <p>Clínica Vida+ &copy; 2026 - Todos os direitos acadêmicos reservados.</p>
+            <p class="flex items-center justify-center gap-2">
+                <span>Interface Responsiva</span> &bull; <span>Português (BR)</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- MODAL RELATÓRIO DE SPRINT -->
+    <div id="modal-relatorio-sprint" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-file-lines text-brand-600"></i> Relatório de Encerramento de Sprint
+                </h3>
+                <button onclick="fecharModalRelatorioSprint()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="space-y-3 text-xs text-slate-700">
+                <div class="bg-brand-50 p-3 rounded-lg border border-brand-100">
+                    <strong class="text-brand-900 block text-sm">Objetivo da Sprint 01:</strong>
+                    Modelagem arquitetural do sistema de gestão, estruturação do script Python base e validação das regras lógicas de consulta.
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="font-bold block text-slate-900">Duração:</span>
+                        <span>14 Dias (2 Semanas)</span>
+                    </div>
+                    <div>
+                        <span class="font-bold block text-slate-900">Taxa de Conclusão:</span>
+                        <span class="text-emerald-600 font-bold">100% das Tarefas</span>
+                    </div>
+                </div>
+
+                <div>
+                    <strong class="font-bold text-slate-900 block mb-1">Resultados Obtidos:</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-slate-600">
+                        <li>Implementação do código Python funcional com menu de 5 opções.</li>
+                        <li>Mapeamento de 16 combinações na Tabela-Verdade para regras de atendimento.</li>
+                        <li>Construção do modelo visual de Fila FIFO e Diagrama de Casos de Uso UML.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <strong class="font-bold text-slate-900 block mb-1">Desafios Encontrados:</strong>
+                    <p class="text-slate-600">Tratamento de exceções no formulário Python para impedir dados nulos e conversão de idades inválidas.</p>
+                </div>
+
+                <div>
+                    <strong class="font-bold text-slate-900 block mb-1">Pontos Positivos & Melhorias Futuras:</strong>
+                    <p class="text-slate-600">Alta coesão do grupo no quadro Kanban. Próximo passo: Integração com banco de dados relacional SQL.</p>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="fecharModalRelatorioSprint()" class="px-4 py-2 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================================================================= -->
+    <!-- JAVASCRIPT PRINCIPAL E LÓGICA DAS SEÇÕES INTERATIVAS -->
+    <!-- ================================================================= -->
+    <script>
+        // =================================================================
+        // 1. SISTEMA DE NAVEGAÇÃO ENTRE ABAS
+        // =================================================================
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'bg-slate-800', 'text-white');
+                el.classList.add('text-slate-400');
+            });
+
+            const selectedContent = document.getElementById(`content-${tabId}`);
+            const selectedTabBtn = document.getElementById(`tab-${tabId}`);
+
+            if (selectedContent) selectedContent.classList.add('active');
+            if (selectedTabBtn) {
+                selectedTabBtn.classList.add('active', 'bg-slate-800', 'text-white');
+                selectedTabBtn.classList.remove('text-slate-400');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =================================================================
+        // 2. KANBAN INTERATIVO (PASSO 1)
+        // =================================================================
+        let kanbanCards = [
+            { id: 1, title: 'Integração Prontuário Eletrônico', col: 'backlog', priority: 'Média', date: '15/11/2026' },
+            { id: 2, title: 'Notificações via WhatsApp', col: 'backlog', priority: 'Baixa', date: '20/11/2026' },
+            { id: 3, title: 'Módulo de Telemedicina', col: 'backlog', priority: 'Alta', date: '30/11/2026' },
+            { id: 4, title: 'Validação de Agendamento', col: 'sprint', priority: 'Alta', date: '05/11/2026' },
+            { id: 5, title: 'Implementação Fila FIFO', col: 'sprint', priority: 'Alta', date: '06/11/2026' },
+            { id: 6, title: 'Simulador de Lógica Proposicional', col: 'progresso', priority: 'Média', date: '02/11/2026' },
+            { id: 7, title: 'Refatoração Terminal Python', col: 'progresso', priority: 'Média', date: '03/11/2026' },
+            { id: 8, title: 'Mapeamento Casos de Uso UML', col: 'concluido', priority: 'Alta', date: '28/10/2026' },
+            { id: 9, title: 'Elaboração do Quadro Kanban', col: 'concluido', priority: 'Normal', date: '25/10/2026' }
+        ];
+
+        function renderKanban() {
+            const cols = ['backlog', 'sprint', 'progresso', 'concluido'];
+            cols.forEach(col => {
+                const container = document.getElementById(`col-${col}`);
+                const countElem = document.getElementById(`count-${col}`);
+                const cardsInCol = kanbanCards.filter(c => c.col === col);
+                
+                countElem.innerText = cardsInCol.length;
+                container.innerHTML = '';
+
+                cardsInCol.forEach(card => {
+                    const badgeColor = card.priority === 'Alta' ? 'bg-rose-100 text-rose-700' : (card.priority === 'Média' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700');
+                    
+                    const cardElem = document.createElement('div');
+                    cardElem.className = 'bg-white p-3 rounded-xl border border-slate-200 shadow-sm hover:shadow transition space-y-2';
+                    cardElem.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${badgeColor}">${card.priority}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">${card.date}</span>
+                        </div>
+                        <h4 class="font-bold text-xs text-slate-800">${card.title}</h4>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                            <span class="text-[10px] text-slate-400">ID: #${card.id}</span>
+                            <div class="flex gap-1">
+                                ${col !== 'backlog' ? `<button onclick="moverCard(${card.id}, 'prev')" class="p-1 hover:bg-slate-100 rounded text-slate-600 text-xs" title="Mover para esquerda"><i class="fa-solid fa-arrow-left"></i></button>` : ''}
+                                ${col !== 'concluido' ? `<button onclick="moverCard(${card.id}, 'next')" class="p-1 hover:bg-slate-100 rounded text-slate-600 text-xs" title="Mover para direita"><i class="fa-solid fa-arrow-right"></i></button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(cardElem);
+                });
+            });
+        }
+
+        function moverCard(cardId, dir) {
+            const colsOrder = ['backlog', 'sprint', 'progresso', 'concluido'];
+            const card = kanbanCards.find(c => c.id === cardId);
+            if (!card) return;
+
+            let currentIdx = colsOrder.indexOf(card.col);
+            if (dir === 'next' && currentIdx < colsOrder.length - 1) {
+                card.col = colsOrder[currentIdx + 1];
+            } else if (dir === 'prev' && currentIdx > 0) {
+                card.col = colsOrder[currentIdx - 1];
+            }
+            renderKanban();
+        }
+
+        function abrirModalRelatorioSprint() {
+            document.getElementById('modal-relatorio-sprint').classList.remove('hidden');
+        }
+        function fecharModalRelatorioSprint() {
+            document.getElementById('modal-relatorio-sprint').classList.add('hidden');
+        }
+
+        // =================================================================
+        // 3. EMULADOR DE TERMINAL PYTHON INTERATIVO (PASSO 2)
+        // =================================================================
+        let estadoPacientesPython = [
+            { nome: "Ana Maria Silva", idade: 28, telefone: "(11) 98765-4321" },
+            { nome: "Carlos Rocha", idade: 64, telefone: "(11) 97123-8899" },
+            { nome: "Beatriz Mendonça", idade: 12, telefone: "(11) 95544-3322" }
+        ];
+
+        let fluxoCadastro = { ativo: false, passo: 0, tempNome: '', tempIdade: 0 };
+        let fluxoBusca = { ativo: false };
+
+        function printTerminal(texto, classe = "text-emerald-400") {
+            const screen = document.getElementById('terminal-screen');
+            const line = document.createElement('div');
+            line.className = classe;
+            line.innerText = texto;
+            screen.appendChild(line);
+            screen.scrollTop = screen.scrollHeight;
+        }
+
+        function exibirMenuTerminal() {
+            printTerminal("\n========================================", "text-slate-400");
+            printTerminal("      CLÍNICA VIDA+ - GESTÃO DE PACIENTES", "text-amber-300 font-bold");
+            printTerminal("========================================", "text-slate-400");
+            printTerminal("1. Cadastrar paciente");
+            printTerminal("2. Ver estatísticas");
+            printTerminal("3. Buscar paciente pelo nome");
+            printTerminal("4. Listar todos os pacientes");
+            printTerminal("5. Sair");
+            printTerminal("========================================", "text-slate-400");
+            printTerminal("Escolha uma opção (1-5): ", "text-white font-bold");
+        }
+
+        function tratarInputTerminal(e) {
+            if (e.key === 'Enter') {
+                enviarComandoTerminal();
+            }
+        }
+
+        function enviarComandoTerminal() {
+            const input = document.getElementById('terminal-input');
+            const val = input.value.trim();
+            input.value = '';
+
+            printTerminal(`> ${val}`, "text-cyan-300 font-bold");
+
+            // Se estiver em fluxo de cadastro
+            if (fluxoCadastro.ativo) {
+                if (fluxoCadastro.passo === 1) {
+                    if (!val) {
+                        printTerminal("Erro: O nome não pode ser vazio!", "text-rose-400");
+                        printTerminal("Nome do paciente: ", "text-white");
+                        return;
+                    }
+                    fluxoCadastro.tempNome = val;
+                    fluxoCadastro.passo = 2;
+                    printTerminal("Idade (anos): ", "text-white");
+                    return;
+                } else if (fluxoCadastro.passo === 2) {
+                    const idadeNum = parseInt(val);
+                    if (isNaN(idadeNum) || idadeNum < 0 || idadeNum > 130) {
+                        printTerminal("Erro: Idade inválida! Digite um inteiro válido.", "text-rose-400");
+                        printTerminal("Idade (anos): ", "text-white");
+                        return;
+                    }
+                    fluxoCadastro.tempIdade = idadeNum;
+                    fluxoCadastro.passo = 3;
+                    printTerminal("Telefone de contato: ", "text-white");
+                    return;
+                } else if (fluxoCadastro.passo === 3) {
+                    if (!val) {
+                        printTerminal("Erro: Telefone não pode ser vazio!", "text-rose-400");
+                        printTerminal("Telefone de contato: ", "text-white");
+                        return;
+                    }
+                    estadoPacientesPython.push({
+                        nome: fluxoCadastro.tempNome,
+                        idade: fluxoCadastro.tempIdade,
+                        telefone: val
+                    });
+                    printTerminal(`Éxito: Paciente '${fluxoCadastro.tempNome}' cadastrado com sucesso!`, "text-emerald-300 font-bold");
+                    fluxoCadastro.ativo = false;
+                    exibirMenuTerminal();
+                    return;
+                }
+            }
+
+            // Se estiver em fluxo de busca
+            if (fluxoBusca.ativo) {
+                fluxoBusca.ativo = false;
+                if (!val) {
+                    printTerminal("Erro: Termo de busca inválido.", "text-rose-400");
+                } else {
+                    const termo = val.toLowerCase();
+                    const enc = estadoPacientesPython.filter(p => p.nome.toLowerCase().includes(termo));
+                    if (enc.length > 0) {
+                        printTerminal(`\nResultados encontrados (${enc.length}):`, "text-amber-300");
+                        enc.forEach((p, idx) => {
+                            printTerminal(`${idx + 1}. Nome: ${p.nome} | Idade: ${p.idade} | Tel: ${p.telefone}`);
+                        });
+                    } else {
+                        printTerminal(`Nenhum paciente encontrado com '${val}'.`, "text-rose-400");
+                    }
+                }
+                exibirMenuTerminal();
+                return;
+            }
+
+            // Opções do Menu Principal
+            switch(val) {
+                case "1":
+                    fluxoCadastro.ativo = true;
+                    fluxoCadastro.passo = 1;
+                    printTerminal("\n--- CADASTRO DE PACIENTE ---", "text-amber-300");
+                    printTerminal("Nome do paciente: ", "text-white");
+                    break;
+                case "2":
+                    printTerminal("\n--- ESTATÍSTICAS DA CLÍNICA ---", "text-amber-300");
+                    if (estadoPacientesPython.length === 0) {
+                        printTerminal("Aviso: Nenhum paciente cadastrado no sistema.", "text-amber-400");
+                    } else {
+                        const tot = estadoPacientesPython.length;
+                        const soma = estadoPacientesPython.reduce((acc, p) => acc + p.idade, 0);
+                        const media = (soma / tot).toFixed(1);
+                        const novo = estadoPacientesPython.reduce((min, p) => p.idade < min.idade ? p : min, estadoPacientesPython[0]);
+                        const velho = estadoPacientesPython.reduce((max, p) => p.idade > max.idade ? p : max, estadoPacientesPython[0]);
+
+                        printTerminal(`Total de pacientes cadastrados: ${tot}`);
+                        printTerminal(`Idade média dos pacientes: ${media} anos`);
+                        printTerminal(`Paciente mais novo: ${novo.nome} (${novo.idade} anos)`);
+                        printTerminal(`Paciente mais velho: ${velho.nome} (${velho.idade} anos)`);
+                    }
+                    exibirMenuTerminal();
+                    break;
+                case "3":
+                    if (estadoPacientesPython.length === 0) {
+                        printTerminal("\nAviso: Nenhum paciente cadastrado para buscar.", "text-amber-400");
+                        exibirMenuTerminal();
+                    } else {
+                        fluxoBusca.ativo = true;
+                        printTerminal("\n--- BUSCAR PACIENTE ---", "text-amber-300");
+                        printTerminal("Digite o nome ou parte do nome para buscar: ", "text-white");
+                    }
+                    break;
+                case "4":
+                    printTerminal("\n--- LISTA DE PACIENTES CADASTRADOS ---", "text-amber-300");
+                    if (estadoPacientesPython.length === 0) {
+                        printTerminal("Aviso: Nenhum paciente cadastrado.", "text-amber-400");
+                    } else {
+                        estadoPacientesPython.forEach((p, idx) => {
+                            printTerminal(`${idx + 1}. Nome: ${p.nome} | Idade: ${p.idade} anos | Tel: ${p.telefone}`);
+                        });
+                    }
+                    exibirMenuTerminal();
+                    break;
+                case "5":
+                    printTerminal("\nEncerrando o sistema Clínica Vida+. Até logo!", "text-teal-300 font-bold");
+                    break;
+                default:
+                    printTerminal("Opção inválida! Escolha um número de 1 a 5.", "text-rose-400");
+                    exibirMenuTerminal();
+            }
+        }
+
+        function reiniciarTerminal() {
+            document.getElementById('terminal-screen').innerHTML = '';
+            fluxoCadastro.ativo = false;
+            fluxoBusca.ativo = false;
+            printTerminal("Python 3.11.4 (default, Jun 2026)");
+            printTerminal("Carregando clinica_vida.py...\n");
+            exibirMenuTerminal();
+        }
+
+        // =================================================================
+        // 4. LÓGICA PROPOSICIONAL & TABELAS-VERDADE (PASSO 3)
+        // =================================================================
+        function gerarTabelasVerdade() {
+            const tbody = document.getElementById('truth-table-body');
+            tbody.innerHTML = '';
+
+            let countNormalV = 0;
+            let countEmergenciaV = 0;
+
+            // Loop por todas as 16 combinações de A, B, C, D (0 a 15)
+            for (let i = 0; i < 16; i++) {
+                const A = (i & 8) !== 0; // True se bit for 1
+                const B = (i & 4) !== 0;
+                const C = (i & 2) !== 0;
+                const D = (i & 1) !== 0;
+
+                // Consulta Normal: (A ∧ B ∧ C) ∨ (B ∧ C ∧ D)
+                const resNormal = (A && B && C) || (B && C && D);
+                
+                // Emergência: C ∧ (B ∨ D)
+                const resEmergencia = C && (B || D);
+
+                if (resNormal) countNormalV++;
+                if (resEmergencia) countEmergenciaV++;
+
+                // Destacar o Estudo de Caso A=F, B=V, C=V, D=F (Linha index 6)
+                const eCasoEspecial = (!A && B && C && !D);
+
+                const tr = document.createElement('tr');
+                tr.className = eCasoEspecial ? 'bg-amber-100 font-bold border-2 border-amber-500' : (i % 2 === 0 ? 'bg-slate-50' : 'bg-white');
+
+                tr.innerHTML = `
+                    <td class="p-2 border-r border-slate-200">${i + 1} ${eCasoEspecial ? '<span class="text-[9px] bg-amber-500 text-white px-1 rounded">Caso Teste</span>' : ''}</td>
+                    <td class="p-2 border-r border-slate-200 ${A ? 'text-emerald-600' : 'text-rose-500'}">${A ? 'V' : 'F'}</td>
+                    <td class="p-2 border-r border-slate-200 ${B ? 'text-emerald-600' : 'text-rose-500'}">${B ? 'V' : 'F'}</td>
+                    <td class="p-2 border-r border-slate-200 ${C ? 'text-emerald-600' : 'text-rose-500'}">${C ? 'V' : 'F'}</td>
+                    <td class="p-2 border-r border-slate-200 ${D ? 'text-emerald-600' : 'text-rose-500'}">${D ? 'V' : 'F'}</td>
+                    <td class="p-2 border-r border-slate-200 font-bold ${resNormal ? 'bg-emerald-100 text-emerald-800' : 'text-rose-600'}">${resNormal ? 'V (Liberado)' : 'F (Bloqueado)'}</td>
+                    <td class="p-2 font-bold ${resEmergencia ? 'bg-emerald-100 text-emerald-800' : 'text-rose-600'}">${resEmergencia ? 'V (Liberado)' : 'F (Bloqueado)'}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function atualizarSimuladorLogica() {
+            const A = document.getElementById('sim-A').checked;
+            const B = document.getElementById('sim-B').checked;
+            const C = document.getElementById('sim-C').checked;
+            const D = document.getElementById('sim-D').checked;
+
+            const resNormal = (A && B && C) || (B && C && D);
+            const resEmergencia = C && (B || D);
+
+            const elemNormal = document.getElementById('sim-res-normal');
+            const elemEmergencia = document.getElementById('sim-res-emergencia');
+
+            if (resNormal) {
+                elemNormal.className = "px-4 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+                elemNormal.innerText = "Consulta Normal: LIBERADO (V)";
+            } else {
+                elemNormal.className = "px-4 py-2 rounded-lg bg-rose-100 text-rose-800 border border-rose-200 font-bold";
+                elemNormal.innerText = "Consulta Normal: BLOQUEADO (F)";
+            }
+
+            if (resEmergencia) {
+                elemEmergencia.className = "px-4 py-2 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold";
+                elemEmergencia.innerText = "Emergência: LIBERADO (V)";
+            } else {
+                elemEmergencia.className = "px-4 py-2 rounded-lg bg-rose-100 text-rose-800 border border-rose-200 font-bold";
+                elemEmergencia.innerText = "Emergência: BLOQUEADO (F)";
+            }
+        }
+
+        // =================================================================
+        // 5. FILA FIFO INTERATIVA (PASSO 4)
+        // =================================================================
+        let estadoFilaFifo = [
+            { nome: "Carlos Alberto", cpf: "111.222.333-44" },
+            { nome: "Mariana Souza", cpf: "555.666.777-88" },
+            { nome: "Roberto Alves", cpf: "999.000.111-22" }
+        ];
+
+        function renderFilaFifo() {
+            const container = document.getElementById('fifo-nodes-container');
+            container.innerHTML = '';
+
+            if (estadoFilaFifo.length === 0) {
+                container.innerHTML = `<div class="p-4 bg-slate-100 rounded-lg text-center text-slate-500 text-xs italic">Fila de espera vazia. Nenhum paciente aguardando.</div>`;
+                return;
+            }
+
+            estadoFilaFifo.forEach((paciente, idx) => {
+                const node = document.createElement('div');
+                node.className = `p-3 rounded-xl border flex items-center justify-between transition-all ${idx === 0 ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-400/50' : 'bg-white border-slate-200'}`;
+                
+                node.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-6 h-6 rounded-full ${idx === 0 ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-700'} text-xs font-bold flex items-center justify-center">
+                            ${idx + 1}
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-800">${paciente.nome}</h4>
+                            <p class="text-[10px] text-slate-500 font-mono">CPF: ${paciente.cpf}</p>
+                        </div>
+                    </div>
+                    ${idx === 0 ? '<span class="text-[10px] bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded-full uppercase">Próximo da Fila</span>' : '<span class="text-[10px] text-slate-400">Aguardando...</span>'}
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        function atenderProximoFila() {
+            if (estadoFilaFifo.length === 0) {
+                alert("A fila já está totalmente vazia!");
+                return;
+            }
+            const atendido = estadoFilaFifo.shift(); // Dequeue
+            
+            const histBox = document.getElementById('fifo-historico');
+            const histText = document.getElementById('fifo-ultimo-chamado');
+            histBox.classList.remove('hidden');
+            histText.innerText = `${atendido.nome} (CPF: ${atendido.cpf})`;
+
+            renderFilaFifo();
+        }
+
+        function adicionarPacienteFila() {
+            const inputNome = document.getElementById('fifo-nome');
+            const inputCpf = document.getElementById('fifo-cpf');
+
+            const nome = inputNome.value.trim();
+            const cpf = inputCpf.value.trim();
+
+            if (!nome || !cpf) {
+                alert("Por favor, preencha Nome e CPF para enfileirar!");
+                return;
+            }
+
+            estadoFilaFifo.push({ nome, cpf });
+            inputNome.value = '';
+            inputCpf.value = '';
+
+            renderFilaFifo();
+        }
+
+        function resetarFilaSimulada() {
+            estadoFilaFifo = [
+                { nome: "Carlos Alberto", cpf: "111.222.333-44" },
+                { nome: "Mariana Souza", cpf: "555.666.777-88" },
+                { nome: "Roberto Alves", cpf: "999.000.111-22" }
+            ];
+            document.getElementById('fifo-historico').classList.add('hidden');
+            renderFilaFifo();
+        }
+
+        // =================================================================
+        // 6. DOWNLOAD DE SCRIPT PYTHON & EXPORTAÇÃO
+        // =================================================================
+        function baixarScriptPython() {
+            const codigoPythonRaw = `
+# =========================================================
+# PROJETO ACADÊMICO: CLÍNICA VIDA+
+# ARQUIVO EXECUTÁVEL: clinica_vida.py
+# ESTRUTURA: Listas e Dicionários em Python
+# =========================================================
+
+def exibir_menu():
+    print("\\n" + "="*40)
+    print("      CLÍNICA VIDA+ - GESTÃO DE PACIENTES")
+    print("="*40)
+    print("1. Cadastrar paciente")
+    print("2. Ver estatísticas")
+    print("3. Buscar paciente pelo nome")
+    print("4. Listar todos os pacientes")
+    print("5. Sair")
+    print("="*40)
+
+def cadastrar_paciente(pacientes):
+    print("\\n--- CADASTRO DE PACIENTE ---")
+    nome = input("Nome do paciente: ").strip()
+    if not nome:
+        print("Erro: O nome não pode ser vazio!")
+        return
+
+    try:
+        idade = int(input("Idade (anos): "))
+        if idade < 0 or idade > 130:
+            print("Erro: Idade inválida!")
+            return
+    except ValueError:
+        print("Erro: A idade deve ser um número inteiro!")
+        return
+
+    telefone = input("Telefone de contato: ").strip()
+    if not telefone:
+        print("Erro: Telefone não pode ser vazio!")
+        return
+
+    paciente = {
+        "nome": nome,
+        "idade": idade,
+        "telefone": telefone
+    }
+    pacientes.append(paciente)
+    print(f"Éxito: Paciente '{nome}' cadastrado com sucesso!")
+
+def ver_estatisticas(pacientes):
+    print("\\n--- ESTATÍSTICAS DA CLÍNICA ---")
+    if not pacientes:
+        print("Aviso: Nenhum paciente cadastrado no sistema.")
+        return
+
+    total = len(pacientes)
+    soma_idades = sum(p["idade"] for p in pacientes)
+    media_idade = soma_idades / total
+
+    mais_novo = min(pacientes, key=lambda p: p["idade"])
+    mais_velho = max(pacientes, key=lambda p: p["idade"])
+
+    print(f"Total de pacientes cadastrados: {total}")
+    print(f"Idade média dos pacientes: {media_idade:.1f} anos")
+    print(f"Paciente mais novo: {mais_novo['nome']} ({mais_novo['idade']} anos)")
+    print(f"Paciente mais velho: {mais_velho['nome']} ({mais_velho['idade']} anos)")
+
+def buscar_paciente(pacientes):
+    print("\\n--- BUSCAR PACIENTE ---")
+    if not pacientes:
+        print("Aviso: Nenhum paciente cadastrado no sistema.")
+        return
+
+    termo = input("Digite o nome para buscar: ").strip().lower()
+    if not termo:
+        print("Erro: Termo de busca inválido.")
+        return
+
+    encontrados = [p for p in pacientes if termo in p["nome"].lower()]
+
+    if encontrados:
+        print(f"\\nResultados encontrados ({len(encontrados)}):")
+        for idx, p in enumerate(encontrados, 1):
+            print(f"{idx}. Nome: {p['nome']} | Idade: {p['idade']} | Tel: {p['telefone']}")
+    else:
+        print(f"Nenhum paciente encontrado com termo '{termo}'.")
+
+def listar_pacientes(pacientes):
+    print("\\n--- LISTA DE PACIENTES ---")
+    if not pacientes:
+        print("Aviso: Nenhum paciente cadastrado.")
+        return
+
+    for idx, p in enumerate(pacientes, 1):
+        print(f"{idx}. Nome: {p['nome']} | Idade: {p['idade']} | Tel: {p['telefone']}")
+
+def main():
+    pacientes = [
+        {"nome": "Ana Maria Silva", "idade": 28, "telefone": "(11) 98765-4321"},
+        {"nome": "Carlos Rocha", "idade": 64, "telefone": "(11) 97123-8899"},
+        {"nome": "Beatriz Mendonça", "idade": 12, "telefone": "(11) 95544-3322"}
+    ]
+
+    while True:
+        exibir_menu()
+        opcao = input("Escolha uma opção (1-5): ").strip()
+
+        if opcao == "1":
+            cadastrar_paciente(pacientes)
+        elif opcao == "2":
+            ver_estatisticas(pacientes)
+        elif opcao == "3":
+            buscar_paciente(pacientes)
+        elif opcao == "4":
+            listar_pacientes(pacientes)
+        elif opcao == "5":
+            print("\\nEncerrando o sistema Clínica Vida+. Até logo!")
+            break
+        else:
+            print("\\nOpção inválida! Escolha um número de 1 a 5.")
+
+if __name__ == "__main__":
+    main()
+`.trim();
+
+            const blob = new Blob([codigoPythonRaw], { type: 'text/x-python;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'clinica_vida.py';
+            link.click();
+        }
+
+        function copiarCodigoPython() {
+            const code = document.getElementById('python-code-display').innerText;
+            const dummy = document.createElement('textarea');
+            document.body.appendChild(dummy);
+            dummy.value = code;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            alert("Código Python copiado para a área de transferência!");
+        }
+
+        function exportarRelatorioCompleto() {
+            window.print();
+        }
+
+        // =================================================================
+        // INICIALIZAÇÃO AO CARREGAR A PÁGINA
+        // =================================================================
+        window.onload = function() {
+            renderKanban();
+            reiniciarTerminal();
+            gerarTabelasVerdade();
+            atualizarSimuladorLogica();
+            renderFilaFifo();
+        };
+    </script>
+</body>
+</html>
